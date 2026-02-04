@@ -26,8 +26,7 @@ import * as vscode from "vscode";
 let statusBarClock: vscode.StatusBarItem;
 
 export function activate(context: vscode.ExtensionContext) {
-
-  vscode.window.showErrorMessage("DEBUG: Extension has started!");
+  // vscode.window.showErrorMessage("DEBUG: Extension has started!");
   // 1. Hello World
   let hello = vscode.commands.registerCommand("ext.helloWorld", () => {
     vscode.window.showInformationMessage("Hello from the Extension Suite!");
@@ -51,9 +50,13 @@ export function activate(context: vscode.ExtensionContext) {
   //alignment: right and priority: 100 (higher priority)
   statusBarClock = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Right,
-    100,
+    1000,
   );
-  statusBarClock.command = "ext.showDate"; // clicking the clock will trigger showDate command
+  statusBarClock.command = "ext.showDate";
+  statusBarClock.text = `$(watch) Loading...`; // Give it initial text
+  statusBarClock.show(); // Show it immediately
+
+  // clicking the clock will trigger showDate command
 
   const intervalId = setInterval(() => {
     const now = new Date();
