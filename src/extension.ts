@@ -14,66 +14,55 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 
-
 //official API by Microsoft , colleection of functions, classes, and interfaces to interact with VS Code
+import { stat } from "fs";
 import * as vscode from "vscode";
-
 
 //vscode.something  : this something is a namespace that contains various functionalities provided by the VS Code API
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
+
+let statusBarClock: vscode.StatusBarItem;
+
 export function activate(context: vscode.ExtensionContext) {
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
-  // console.log(
-  //   'Congratulations, your extension "my-first-extension" is now active!',
-  // );
 
-  
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with registerCommand
-  // The commandId parameter must match the command field in package.json
-  // const disposable = vscode.commands.registerCommand(
-  //   "my-first-extension.helloWorld",
-  //   () => {
-  //     // The code you place here will be executed every time your command is executed
-  //     // Display a message box to the user
-  //     vscode.window.showInformationMessage(
-  //       "Hello World from my-first-extension!",
-  //     );
-  //   },
-  // );
+  vscode.window.showErrorMessage("DEBUG: Extension has started!");
+  // 1. Hello World
+  let hello = vscode.commands.registerCommand("ext.helloWorld", () => {
+    vscode.window.showInformationMessage("Hello from the Extension Suite!");
+  });
 
-  // context.subscriptions.push(disposable);
+  // 2. Show Date
+  let showDate = vscode.commands.registerCommand("ext.showDate", () => {
+    const dateString = new Date().toLocaleString();
+    vscode.window.showInformationMessage(`Current Date: ${dateString}`);
 
-
-  //implement the logic for the new command 'my-first-extension.showDate'
-  let dateDisposable = vscode.commands.registerCommand('my-first-extension.showDate', () => {
-
-    const currentDate = new Date();
-    const formattedDate = currentDate.toDateString();
-
-    const dateString = currentDate.toLocaleString();
-
-
-    //show popup message with current date and time and formatted date(TOAST notification)
-    vscode.window.showInformationMessage(`Current Date and Time: ${dateString} & Formatted Date: ${formattedDate}`);
-
-
-
-    const editor = vscode.window.activeTextEditor;//checks if user has a file open in the editor
-    if (editor) {//editor contains the file data if its open 
-      
-      
-      //insert at the cursor position or replace the current selection with the dateString
-      editor.edit(editBuilder => {
+    const editor = vscode.window.activeTextEditor;
+    if (editor) {
+      editor.edit((editBuilder) => {
         editBuilder.replace(editor.selection, dateString);
       });
     }
   });
 
-  context.subscriptions.push(dateDisposable);
+  // 3. Status Bar Clock Logic
+
+  //alignment: right and priority: 100 (higher priority)
+  statusBarClock = vscode.window.createStatusBarItem(
+    vscode.StatusBarAlignment.Right,
+    100,
+  );
+  statusBarClock.command = "ext.showDate"; // clicking the clock will trigger showDate command
+
+  const intervalId = setInterval(() => {
+    const now = new Date();
+    statusBarClock.text = `$(clock) ${now.toLocaleTimeString()}`;
+    statusBarClock.show();
+  }, 1000);
+  context.subscriptions.push(hello, showDate, statusBarClock, {
+    dispose: () => clearInterval(intervalId),
+  });
 }
 
 // This method is called when your extension is deactivated(used for cleanup)

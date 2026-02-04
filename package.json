@@ -12,17 +12,17 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": ["onStartupFinished"],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "my-first-extension.helloWorld",
-        "title": "Hello World"
+        "command": "ext.helloWorld",
+        "title": " Suite: Hello World"
       },
       {
-        "command": "my-first-extension.showDate",
-        "title": "Display and Insert Current Date"
+        "command": "ext.showDate",
+        "title": " Suite: Display and Insert Current Date"
       }
     ]
   },
