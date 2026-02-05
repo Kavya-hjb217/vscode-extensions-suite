@@ -66,7 +66,49 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(hello, showDate, statusBarClock, {
     dispose: () => clearInterval(intervalId),
   });
+
+
+  //clean console logs command implementation
+let cleanLogs = vscode.commands.registerCommand('ext.cleanConsoleLogs', () => {
+    const editor = vscode.window.activeTextEditor;
+
+    if (!editor) {
+        vscode.window.showInformationMessage('No active editor found!');
+        return;
+    }
+
+    const document = editor.document;
+    // This Regex finds console.log, console.warn, and console.error 
+    // including the semicolon at the end.
+    const regex = /console\.(log|debug|info|warn|error)\(.*\);?/g;
+    const text = document.getText();
+    let match;
+    let deleteCount = 0;
+
+    editor.edit(editBuilder => {
+        while ((match = regex.exec(text)) !== null) {
+            // Convert the index of the match into a VS Code Range
+            const startPos = document.positionAt(match.index);
+            const endPos = document.positionAt(match.index + match[0].length);
+            const range = new vscode.Range(startPos, endPos);
+
+            editBuilder.delete(range);
+            deleteCount++;
+        }
+    }).then(success => {
+        if (success) {
+            vscode.window.showInformationMessage(`Successfully removed ${deleteCount} logs!`);
+        }
+    });
+});
+
+context.subscriptions.push(cleanLogs);
 }
+
+
+
+
+
 
 // This method is called when your extension is deactivated(used for cleanup)
 export function deactivate() {}

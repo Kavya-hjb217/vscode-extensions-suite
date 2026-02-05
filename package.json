@@ -23,6 +23,10 @@
       {
         "command": "ext.showDate",
         "title": " Suite: Display and Insert Current Date"
+      },
+      {"command": "ext.cleanConsoleLogs",
+       "title":" Suite: Clean Console Logs",
+       "category": "Suite"
       }
     ]
   },
