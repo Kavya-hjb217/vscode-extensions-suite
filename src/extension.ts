@@ -17,6 +17,7 @@
 //official API by Microsoft , colleection of functions, classes, and interfaces to interact with VS Code
 import { stat } from "fs";
 import * as vscode from "vscode";
+import { SuiteExplorerProvider } from "./suiteExplorer";
 
 //vscode.something  : this something is a namespace that contains various functionalities provided by the VS Code API
 
@@ -69,7 +70,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 
   //clean console logs command implementation
-let cleanLogs = vscode.commands.registerCommand('ext.cleanConsoleLogs', () => {//register a new command with the identifier 'ext.cleanConsoleLogs' and a callback function that will be executed when the command is invoked.
+ let cleanLogs = vscode.commands.registerCommand('ext.cleanConsoleLogs', () => {//register a new command with the identifier 'ext.cleanConsoleLogs' and a callback function that will be executed when the command is invoked.
     const editor = vscode.window.activeTextEditor;// .activeTexteditor looks for the file we are currently and is undefined if we are not editing any file or if the file is not a text document.
     //  It returns the active text editor instance, which provides access to the currently open file and its contents.
 
@@ -115,7 +116,17 @@ let cleanLogs = vscode.commands.registerCommand('ext.cleanConsoleLogs', () => {/
             vscode.window.showInformationMessage(`Successfully removed ${deleteCount} logs!`);
         }
     });
-});
+ });
+
+
+ //register the sidebar tree view iin activation function 
+ const suiteExplorerProvider = new SuiteExplorerProvider();
+
+
+ // This connects the ID in package.json ('suite-commands-view') to our code implementation (suiteExplorerProvider).
+ //  It tells VS Code to use our SuiteExplorerProvider to populate the tree view with the ID 'suite-commands-view' that we defined in package.json.
+  vscode.window.registerTreeDataProvider("suite-commands-view", suiteExplorerProvider);
+
 
 context.subscriptions.push(cleanLogs);
 }
