@@ -69,27 +69,42 @@ export function activate(context: vscode.ExtensionContext) {
 
 
   //clean console logs command implementation
-let cleanLogs = vscode.commands.registerCommand('ext.cleanConsoleLogs', () => {
-    const editor = vscode.window.activeTextEditor;
+let cleanLogs = vscode.commands.registerCommand('ext.cleanConsoleLogs', () => {//register a new command with the identifier 'ext.cleanConsoleLogs' and a callback function that will be executed when the command is invoked.
+    const editor = vscode.window.activeTextEditor;// .activeTexteditor looks for the file we are currently and is undefined if we are not editing any file or if the file is not a text document.
+    //  It returns the active text editor instance, which provides access to the currently open file and its contents.
 
-    if (!editor) {
+    if (!editor) {//if no file is open display a message and return
         vscode.window.showInformationMessage('No active editor found!');
         return;
     }
 
-    const document = editor.document;
+    const document = editor.document; // edito.document is the current file open in the editor
     // This Regex finds console.log, console.warn, and console.error 
     // including the semicolon at the end.
-    const regex = /console\.(log|debug|info|warn|error)\(.*\);?/g;
-    const text = document.getText();
+    const regex = /console\.(log|debug|info|warn|error)\(.*\);?/g;//g means globalmeaning find every match and not just the first one 
+    const text = document.getText();// get the entire document (opened file) as a string, which will be searched for console log statements using the regex.
     let match;
     let deleteCount = 0;
 
-    editor.edit(editBuilder => {
-        while ((match = regex.exec(text)) !== null) {
-            // Convert the index of the match into a VS Code Range
-            const startPos = document.positionAt(match.index);
-            const endPos = document.positionAt(match.index + match[0].length);
+    editor.edit(editBuilder => {// .edit allows us to make changes to the document(currently opened). It takes a callback function that receives an editBuilder object,
+    //  which is used to specify the edits we want to make to the document.
+    //editBuilder is a tool inside the function to prform operation like delete , update etc on the document
+       
+    while ((match = regex.exec(text)) !== null) {//loop keeps running til there are console log statements in the text. regex.exec(text) searches for the next match of the regex in the text
+    //  and returns an array with details about the match, or null if no more matches are found.
+          
+    // Convert the index of the match into a VS Code Range
+
+
+    //1. match gives the index of string  and 
+    //  2.match[0].length gives the length of the matched string.
+    //  3. positionAt converts the index into a position object that VS Code can understand, which includes line and character information.
+          
+            const startPos = document.positionAt(match.index);//starting position of the current match 
+            const endPos = document.positionAt(match.index + match[0].length);//ending position of the current match.
+            //  match[0] contains the entire matched string (e.g., console.log(...);), so match.index + match[0].length gives us the index right after the end of the matched string.
+            
+            
             const range = new vscode.Range(startPos, endPos);
 
             editBuilder.delete(range);
