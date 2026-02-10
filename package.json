@@ -29,6 +29,12 @@
           "id": "suite-commands-view",
           "name": "Suite Actions",
           "icon": "$(tools)"
+        },
+        {
+          "type": "webview",
+          "id": "suite-webview-view",
+          "name": "Suite Interaction Panel",
+          "icon": "$(dashboard)"
         }
       ]
     },

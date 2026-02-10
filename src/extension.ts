@@ -18,6 +18,7 @@
 import { stat } from "fs";
 import * as vscode from "vscode";
 import { SuiteExplorerProvider } from "./suiteExplorer";
+import { SuiteWebviewProvider } from "./suiteWebviewProvider";
 
 //vscode.something  : this something is a namespace that contains various functionalities provided by the VS Code API
 
@@ -76,7 +77,7 @@ export function activate(context: vscode.ExtensionContext) {
   }, 1000);
 
   context.subscriptions.push(hello, showDate, statusBarClock, {
-    dispose: () => { if (clockInterval) clearInterval(clockInterval); },
+    dispose: () => { if (clockInterval){ clearInterval(clockInterval);} },
   });
 
 
@@ -97,7 +98,10 @@ export function activate(context: vscode.ExtensionContext) {
     
 
     //updated regex to handle multiline console statements
-    const regex = /console\.(log|debug|info|warn|error)\s*\([\s\S]*?\);?/gm;
+    // const regex = /console\.(log|debug|info|warn|error)\s*\([\s\S]*?\);?/gm;
+
+    // This regex handles one level of nested parentheses: console.log( func() )
+    const regex = /console\.(log|debug|info|warn|error)\s*\((?:[^()]+|\([^()]*\))*\);?/gm;
 
     
     const text = document.getText();// get the entire document (opened file) as a string, which will be searched for console log statements using the regex.
@@ -149,6 +153,15 @@ export function activate(context: vscode.ExtensionContext) {
 
 
 context.subscriptions.push(cleanLogs);
+
+const webviewProvider = new SuiteWebviewProvider(context.extensionUri);
+
+context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider(SuiteWebviewProvider.viewType, webviewProvider)
+);
+
+suiteExplorerProvider.refresh();//refresh the tree view to show the updated console log count after deletion
+
 }
 
 
