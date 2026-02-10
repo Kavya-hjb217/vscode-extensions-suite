@@ -24,6 +24,7 @@ import { SuiteExplorerProvider } from "./suiteExplorer";
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 
+let clockInterval: NodeJS.Timeout | undefined;
 let statusBarClock: vscode.StatusBarItem;
 
 export function activate(context: vscode.ExtensionContext) {
@@ -68,13 +69,14 @@ export function activate(context: vscode.ExtensionContext) {
 
   // clicking the clock will trigger showDate command
 
-  const intervalId = setInterval(() => {
+  clockInterval = setInterval(() => {
     const now = new Date();
     statusBarClock.text = `$(clock) ${now.toLocaleTimeString()}`;
     statusBarClock.show();
   }, 1000);
+
   context.subscriptions.push(hello, showDate, statusBarClock, {
-    dispose: () => clearInterval(intervalId),
+    dispose: () => { if (clockInterval) clearInterval(clockInterval); },
   });
 
 
@@ -105,7 +107,7 @@ export function activate(context: vscode.ExtensionContext) {
   const success=   await editor.edit(editBuilder => {// .edit allows us to make changes to the document(currently opened). It takes a callback function that receives an editBuilder object,
     //  which is used to specify the edits we want to make to the document.
     //editBuilder is a tool inside the function to prform operation like delete , update etc on the document
-       
+        
     while ((match = regex.exec(text)) !== null) {//loop keeps running til there are console log statements in the text. regex.exec(text) searches for the next match of the regex in the text
     //  and returns an array with details about the match, or null if no more matches are found.
           
@@ -155,4 +157,8 @@ context.subscriptions.push(cleanLogs);
 
 
 // This method is called when your extension is deactivated(used for cleanup)
-export function deactivate() {}
+export function deactivate() {
+    if (clockInterval) {
+        clearInterval(clockInterval);
+    }
+}
