@@ -34,15 +34,24 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   // 2. Show Date
-  let showDate = vscode.commands.registerCommand("ext.showDate", () => {
+  let showDate = vscode.commands.registerCommand("ext.showDate", async() => {
     const dateString = new Date().toLocaleString();
-    vscode.window.showInformationMessage(`Current Date: ${dateString}`);
+    
 
     const editor = vscode.window.activeTextEditor;
     if (editor) {
-      editor.edit((editBuilder) => {
-        editBuilder.replace(editor.selection, dateString);
+
+
+     const success = await editor.edit((editBuilder) => {
+
+        const commentDate = `// Current Date: ${dateString}`;
+        editBuilder.replace(editor.selection, commentDate);
       });
+      if (success) {
+        vscode.window.showInformationMessage("Date inserted successfully!");
+      } else {
+        vscode.window.showErrorMessage("Failed to insert date.");
+      }
     }
   });
 
@@ -70,7 +79,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 
   //clean console logs command implementation
- let cleanLogs = vscode.commands.registerCommand('ext.cleanConsoleLogs', () => {//register a new command with the identifier 'ext.cleanConsoleLogs' and a callback function that will be executed when the command is invoked.
+ let cleanLogs = vscode.commands.registerCommand('ext.cleanConsoleLogs',async () => {//register a new command with the identifier 'ext.cleanConsoleLogs' and a callback function that will be executed when the command is invoked.
     const editor = vscode.window.activeTextEditor;// .activeTexteditor looks for the file we are currently and is undefined if we are not editing any file or if the file is not a text document.
     //  It returns the active text editor instance, which provides access to the currently open file and its contents.
 
@@ -82,12 +91,18 @@ export function activate(context: vscode.ExtensionContext) {
     const document = editor.document; // edito.document is the current file open in the editor
     // This Regex finds console.log, console.warn, and console.error 
     // including the semicolon at the end.
-    const regex = /console\.(log|debug|info|warn|error)\(.*\);?/g;//g means globalmeaning find every match and not just the first one 
+    // const regex = /console\.(log|debug|info|warn|error)\(.*\);?/g;//g means globalmeaning find every match and not just the first one 
+    
+
+    //updated regex to handle multiline console statements
+    const regex = /console\.(log|debug|info|warn|error)\s*\([\s\S]*?\);?/gm;
+
+    
     const text = document.getText();// get the entire document (opened file) as a string, which will be searched for console log statements using the regex.
     let match;
     let deleteCount = 0;
 
-    editor.edit(editBuilder => {// .edit allows us to make changes to the document(currently opened). It takes a callback function that receives an editBuilder object,
+  const success=   await editor.edit(editBuilder => {// .edit allows us to make changes to the document(currently opened). It takes a callback function that receives an editBuilder object,
     //  which is used to specify the edits we want to make to the document.
     //editBuilder is a tool inside the function to prform operation like delete , update etc on the document
        
@@ -111,11 +126,14 @@ export function activate(context: vscode.ExtensionContext) {
             editBuilder.delete(range);
             deleteCount++;
         }
-    }).then(success => {
-        if (success) {
-            vscode.window.showInformationMessage(`Successfully removed ${deleteCount} logs!`);
-        }
     });
+
+    if(success){
+        vscode.window.showInformationMessage(`Deleted ${deleteCount} console log statements.`);
+        suiteExplorerProvider.refresh();
+    }else{
+        vscode.window.showErrorMessage('Failed to delete console log statements.');
+    }
  });
 
 

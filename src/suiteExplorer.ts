@@ -6,6 +6,20 @@ import * as vscode from 'vscode';//import the entire vscode API
 
 //implementing a built-in interface TreeDataProvider to create a tree view
 export class SuiteExplorerProvider implements vscode.TreeDataProvider<SuiteItem> {//every node of this tree would be  object our custon class SuiteItem which we will define later
+   
+   //create event emitter to signal tree update 
+   private _onDidChangeTreeData: vscode.EventEmitter<SuiteItem | undefined | void> = new vscode.EventEmitter<SuiteItem | undefined | void>();
+    readonly onDidChangeTreeData: vscode.Event<SuiteItem | undefined | void> = this._onDidChangeTreeData.event;
+   
+
+    // Whenever you call this, the Sidebar will redraw itself.
+    refresh(): void {
+        this._onDidChangeTreeData.fire();
+    }
+   
+   
+   
+   
     getTreeItem(element: SuiteItem): vscode.TreeItem {//vs code calls it for every item in the tree to dtermine how to render it (text,icon ,etc)
         return element;//since SuiteItem extends vscode.TreeItem, we can return it directly as it already contains all the necessary information for rendering.
     }
