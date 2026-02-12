@@ -10,10 +10,13 @@ export class SuiteExplorerProvider implements vscode.TreeDataProvider<SuiteItem>
    //create event emitter to signal tree update 
    private _onDidChangeTreeData: vscode.EventEmitter<SuiteItem | undefined | void> = new vscode.EventEmitter<SuiteItem | undefined | void>();
     readonly onDidChangeTreeData: vscode.Event<SuiteItem | undefined | void> = this._onDidChangeTreeData.event;
-   
+   private _deleteCount = 0;
 
     // Whenever you call this, the Sidebar will redraw itself.
-    refresh(): void {
+    refresh(count?: number): void {
+         if(count !== undefined){
+            this._deleteCount = count;
+        }
         this._onDidChangeTreeData.fire();
     }
    
@@ -39,7 +42,7 @@ export class SuiteExplorerProvider implements vscode.TreeDataProvider<SuiteItem>
         // Sub-items for Utility Tools
         if (element.label === "Utility Tools") {
             return Promise.resolve([
-                new SuiteItem("Clean Console Logs", vscode.TreeItemCollapsibleState.None, "trash", "ext.cleanConsoleLogs"),
+                new SuiteItem(`Clean Console Logs (Total:${this._deleteCount})`, vscode.TreeItemCollapsibleState.None, "trash", "ext.cleanConsoleLogs"),
                 new SuiteItem("Insert Current Date", vscode.TreeItemCollapsibleState.None, "calendar", "ext.showDate")
             ]);
         }

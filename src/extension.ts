@@ -136,7 +136,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     if(success){
         vscode.window.showInformationMessage(`Deleted ${deleteCount} console log statements.`);
-        suiteExplorerProvider.refresh();
+        suiteExplorerProvider.refresh(deleteCount);
     }else{
         vscode.window.showErrorMessage('Failed to delete console log statements.');
     }
